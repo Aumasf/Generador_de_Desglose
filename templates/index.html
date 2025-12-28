@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Generar Desglose desde Excel</title>
+</head>
+<body>
+
+<h3>Generador de Desglose desde Planilla de Oferta</h3>
+
+
+
+<form method="post" enctype="multipart/form-data">
+
+    <!-- ============================= -->
+    <!-- FECHA DEL DOCUMENTO -->
+    <!-- Formato obligatorio dd/mm/yyyy -->
+    <!-- ============================= -->
+    <label>Fecha:</label><br>
+    <input
+        type="text"
+        name="fecha"
+        placeholder="dd/mm/yyyy"
+        pattern="\d{2}/\d{2}/\d{4}"
+        required
+    >
+    <br><br>
+
+    <!-- ============================= -->
+    <!-- ARCHIVO EXCEL -->
+    <!-- ============================= -->
+    <label>Archivo Excel:</label><br>
+    <input type="file" name="excel" accept=".xlsx,.xlsm,.xls" required>
+    <br><br>
+
+    <!-- ============================= -->
+    <!-- LOGO (OPCIONAL) -->
+    <!-- Si no se sube, se usa logo_default.png -->
+    <!-- ============================= -->
+    <label>Logo (opcional):</label><br>
+    <input type="file" name="logo" accept="image/png,image/jpeg,image/webp,image/bmp,image/tiff">
+    <br><br>
+
+    <button type="submit">Generar PDF</button>
+</form>
+
+
+</body>
+</html>
