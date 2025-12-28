@@ -1,0 +1,109 @@
+/* -------- Reset básico -------- */
+* {
+    box-sizing: border-box;
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+body {
+    background: #f4f6f9;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+/* -------- Contenedor principal -------- */
+.container {
+    max-width: 900px;
+    margin: 40px auto;
+    background: #ffffff;
+    padding: 30px 40px;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+/* -------- Títulos -------- */
+h1 {
+    margin-top: 0;
+    font-size: 24px;
+    color: #1f2d3d;
+    border-bottom: 2px solid #e6e9ee;
+    padding-bottom: 10px;
+}
+
+h2 {
+    font-size: 18px;
+    margin-top: 30px;
+    color: #2c3e50;
+}
+
+/* -------- Formularios -------- */
+form {
+    margin-top: 25px;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #34495e;
+}
+
+input[type="file"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #cfd6de;
+    border-radius: 5px;
+    background: #fafbfc;
+}
+
+input[type="file"]:hover,
+input[type="password"]:hover {
+    border-color: #3498db;
+}
+
+/* -------- Botones -------- */
+button {
+    background: #3498db;
+    color: #fff;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+button:hover {
+    background: #2980b9;
+}
+
+/* -------- Mensajes -------- */
+.error {
+    background: #fdecea;
+    color: #c0392b;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.success {
+    background: #eafaf1;
+    color: #27ae60;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+/* -------- Footer simple -------- */
+.footer {
+    margin-top: 40px;
+    font-size: 12px;
+    color: #7f8c8d;
+    text-align: center;
+}
