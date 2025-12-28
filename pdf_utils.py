@@ -67,8 +67,8 @@ FUENTE_INFO_MIN = 5.0
 # Coordenadas RELATIVAS al 'y' base de cada tabla (Y_POSICIONES), para que puedas
 # ajustarlas fácil sin tocar el resto del código.
 
-X_LOTE = 63                 # X inicio del texto
-Y_LOTE_OFFSET = -2          # baseline relativo a 'y'
+X_LOTE = 60                 # X inicio del texto
+Y_LOTE_OFFSET = -1.5          # baseline relativo a 'y'
 ANCHO_LOTE = 495            # ancho disponible (ajustable)
 
 # IMPORTANTE:
@@ -79,7 +79,7 @@ ANCHO_LOTE = 495            # ancho disponible (ajustable)
 X_LOTE_TABLA = 59.83      # borde izquierdo real de la tabla (ajustable)
 ANCHO_LOTE_TABLA = 450.79  # ancho real de la tabla (ajustable)
 
-FUENTE_LOTE_MAX = 8.0
+FUENTE_LOTE_MAX = 7.8
 FUENTE_LOTE_MIN = 5.0
 
 
@@ -101,7 +101,7 @@ FUENTE_LOTE_MIN = 5.0
 # Así ajustás una sola vez y aplica a la tabla superior e inferior.
 
 X_CAJAS_PARTES = [60, 60, 60, 60]               # X inicio de cada caja (A, B, E, F)
-Y_CAJAS_PARTES_OFFSET = [81, 123, 182, 218]     # Y offset relativo a 'y'
+Y_CAJAS_PARTES_OFFSET = [81, 123, 183, 218]     # Y offset relativo a 'y'
 ANCHO_CAJAS_PARTES = [160, 160, 160, 160]       # Ancho por caja
 # IMPORTANTE:
 # En el template real, las cajas B (Mano de obra) y F (Transporte) tienen más altura.
@@ -154,9 +154,9 @@ X_RESUMEN_RIGHTS = [X_RESUMEN_RIGHT] * len(RESUMEN_FILAS)
 # Un valor por fila de RESUMEN_FILAS (posición baseline para insert_text).
 Y_RESUMEN_BASE = [
     # Tabla de ARRIBA (index 0)
-    [334.5, 344, 354.68, 374.36, 383.84, 393.44],
+    [334.5, 344, 354.68, 375, 384.5, 394],
     # Tabla de ABAJO (index 1)
-    [682.5, 692, 702.68, 722.48, 731.96, 741.56],
+    [683, 692, 702.68, 723, 732.5, 742],
 ]
 
 
@@ -281,7 +281,7 @@ F_DET_COLS = ["DTM", "CONSUMO", "COSTO_UNIT", "COSTO_TOTAL"]
 X_F_DET_RIGHTS = [259.0, 297.0, 382.0, 508.0]
 
 # Y base (baseline) por tabla (arriba/abajo)
-Y_F_DET_BASE_TOP = 316.5
+Y_F_DET_BASE_TOP = 317
 Y_F_DET_BASE = [
     Y_F_DET_BASE_TOP,
     Y_F_DET_BASE_TOP + DELTA_TABLAS,
@@ -324,7 +324,7 @@ DET_F_CONSUMO = 0.05
 B_DET_COLS = ["CANTIDAD", "HORAS", "COSTO", "COSTO_TOTAL"]
 
 # X (alineación derecha dentro de cada celda)
-X_B_DET_RIGHTS = [259.0, 297.0, 382.0, 508.0]
+X_B_DET_RIGHTS = [253.0, 291.0, 382.0, 508.0]
 
 # Y base (baseline) por tabla (arriba/abajo)
 Y_B_DET_BASE_TOP = 224.0
@@ -345,7 +345,7 @@ DET_B_HORAS_MAX = 3
 E_DET_COLS = ["CONSUMO", "COSTO_UNIT", "COSTO_TOTAL"]
 
 # X (alineación derecha dentro de cada celda)
-X_E_DET_RIGHTS = [297.0, 382.0, 508.0]
+X_E_DET_RIGHTS = [291.0, 382.0, 508.0]
 
 # Y base (baseline) por tabla (arriba/abajo)
 Y_E_DET_BASE_TOP = 286.0
