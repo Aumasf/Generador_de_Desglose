@@ -8,6 +8,8 @@ OUTPUT = Path("output.pdf")
 # ===============================
 # CONFIGURACIÓN DE LAYOUT
 # ===============================
+# Fuente general para los números del pdf
+FUENTE_NUMEROS=7.0
 
 # Columna de DESCRIPCIÓN (NO TOCAR)
 X_DESCRIPCION = 270
@@ -67,9 +69,9 @@ FUENTE_INFO_MIN = 5.0
 # Coordenadas RELATIVAS al 'y' base de cada tabla (Y_POSICIONES), para que puedas
 # ajustarlas fácil sin tocar el resto del código.
 
-X_LOTE = 60                 # X inicio del texto
+X_LOTE = 62                 # X inicio del texto
 Y_LOTE_OFFSET = -1.5          # baseline relativo a 'y'
-ANCHO_LOTE = 495            # ancho disponible (ajustable)
+ANCHO_LOTE = 490            # ancho disponible (ajustable)
 
 # IMPORTANTE:
 # El texto de Lote debe quedar CENTRADO respecto a la TABLA (no a la hoja).
@@ -79,7 +81,7 @@ ANCHO_LOTE = 495            # ancho disponible (ajustable)
 X_LOTE_TABLA = 59.83      # borde izquierdo real de la tabla (ajustable)
 ANCHO_LOTE_TABLA = 450.79  # ancho real de la tabla (ajustable)
 
-FUENTE_LOTE_MAX = 7.8
+FUENTE_LOTE_MAX = 7
 FUENTE_LOTE_MIN = 5.0
 
 
@@ -101,7 +103,7 @@ FUENTE_LOTE_MIN = 5.0
 # Así ajustás una sola vez y aplica a la tabla superior e inferior.
 
 X_CAJAS_PARTES = [60, 60, 60, 60]               # X inicio de cada caja (A, B, E, F)
-Y_CAJAS_PARTES_OFFSET = [81, 123, 183, 218]     # Y offset relativo a 'y'
+Y_CAJAS_PARTES_OFFSET = [81, 123, 183, 219]     # Y offset relativo a 'y'
 ANCHO_CAJAS_PARTES = [160, 160, 160, 160]       # Ancho por caja
 # IMPORTANTE:
 # En el template real, las cajas B (Mano de obra) y F (Transporte) tienen más altura.
@@ -234,6 +236,16 @@ Y_PARTES_BASE = [
     [y + DELTA_TABLAS for y in Y_PARTES_BASE_TOP],
 ]
 
+# Para los detalles, usaremos coordenadas normalizadas. 
+# X_Col1 -> Cantidad(B) DTM(F) 
+# X_Col2 -> Horas(A) Horas (B) Consumo (E) Consumo (F) 
+# X_Col3 -> Costo H(A) Costo(B) Costo U(E) Costo U(F)
+# X_Col4 -> Costo T(A) Costo T(B) Costo T(C) Costo T(D)
+X_Col1=266
+X_Col2=309
+X_Col3=382
+X_Col4=508
+
 
 # ===============================
 # NUEVO: DETALLES DE A (EQUIPOS) Y F (TRANSPORTE)
@@ -260,7 +272,7 @@ A_DET_COLS = ["HORAS", "COSTO_HORA", "COSTO_TOTAL"]
 
 # X (alineación derecha dentro de cada celda)
 # Ajustá estos X si querés mover los números dentro de sus columnas.
-X_A_DET_RIGHTS = [291.0, 382.0, 508.0]
+X_A_DET_RIGHTS = [X_Col2, X_Col3, X_Col4]
 
 # Y base (baseline) por tabla (arriba/abajo)
 Y_A_DET_BASE_TOP = 183.0
@@ -278,7 +290,7 @@ Y_A_DET_BASE = [
 F_DET_COLS = ["DTM", "CONSUMO", "COSTO_UNIT", "COSTO_TOTAL"]
 
 # X (alineación derecha dentro de cada celda)
-X_F_DET_RIGHTS = [259.0, 297.0, 382.0, 508.0]
+X_F_DET_RIGHTS = [X_Col1, X_Col2, X_Col3, X_Col4]
 
 # Y base (baseline) por tabla (arriba/abajo)
 Y_F_DET_BASE_TOP = 317
@@ -324,7 +336,7 @@ DET_F_CONSUMO = 0.05
 B_DET_COLS = ["CANTIDAD", "HORAS", "COSTO", "COSTO_TOTAL"]
 
 # X (alineación derecha dentro de cada celda)
-X_B_DET_RIGHTS = [253.0, 291.0, 382.0, 508.0]
+X_B_DET_RIGHTS = [X_Col1, X_Col2, X_Col3, X_Col4]
 
 # Y base (baseline) por tabla (arriba/abajo)
 Y_B_DET_BASE_TOP = 224.0
@@ -345,7 +357,7 @@ DET_B_HORAS_MAX = 3
 E_DET_COLS = ["CONSUMO", "COSTO_UNIT", "COSTO_TOTAL"]
 
 # X (alineación derecha dentro de cada celda)
-X_E_DET_RIGHTS = [291.0, 382.0, 508.0]
+X_E_DET_RIGHTS = [X_Col2, X_Col3, X_Col4]
 
 # Y base (baseline) por tabla (arriba/abajo)
 Y_E_DET_BASE_TOP = 286.0
@@ -710,7 +722,7 @@ def _format_float_coma(x, decimales=2):
     return s
 
 
-def _insertar_texto_derecha(page, x_right, y, texto, fontsize=8):
+def _insertar_texto_derecha(page, x_right, y, texto, fontsize=FUENTE_NUMEROS):
     """
     Inserta texto alineado a la derecha, usando insert_text (robusto y consistente).
     """
@@ -758,9 +770,9 @@ def _insertar_detalles_a_y_f(page, tabla_index, seed_int, partes):
 
     # Repetimos total A en la columna "Costo Total Horario Gs."
     y_a = Y_A_DET_BASE[tabla_index]
-    _insertar_texto_derecha(page, X_A_DET_RIGHTS[0], y_a, _format_gs(horas), fontsize=8)
-    _insertar_texto_derecha(page, X_A_DET_RIGHTS[1], y_a, _format_gs(costo_hora), fontsize=8)
-    _insertar_texto_derecha(page, X_A_DET_RIGHTS[2], y_a, _format_gs(total_a), fontsize=8)
+    _insertar_texto_derecha(page, X_A_DET_RIGHTS[0], y_a, _format_gs(horas), fontsize=FUENTE_NUMEROS)
+    _insertar_texto_derecha(page, X_A_DET_RIGHTS[1], y_a, _format_gs(costo_hora), fontsize=FUENTE_NUMEROS)
+    _insertar_texto_derecha(page, X_A_DET_RIGHTS[2], y_a, _format_gs(total_a), fontsize=FUENTE_NUMEROS)
 
     # -------------------------
     # F) Transporte (detalle)
@@ -775,10 +787,10 @@ def _insertar_detalles_a_y_f(page, tabla_index, seed_int, partes):
         dtm = float(total_f) / denom
 
     y_f = Y_F_DET_BASE[tabla_index]
-    _insertar_texto_derecha(page, X_F_DET_RIGHTS[0], y_f, _format_float_coma(dtm, 2), fontsize=8)
-    _insertar_texto_derecha(page, X_F_DET_RIGHTS[1], y_f, _format_float_coma(consumo, 2), fontsize=8)
-    _insertar_texto_derecha(page, X_F_DET_RIGHTS[2], y_f, _format_gs(costo_unit), fontsize=8)
-    _insertar_texto_derecha(page, X_F_DET_RIGHTS[3], y_f, _format_gs(total_f), fontsize=8)
+    _insertar_texto_derecha(page, X_F_DET_RIGHTS[0], y_f, _format_float_coma(dtm, 2), fontsize=FUENTE_NUMEROS)
+    _insertar_texto_derecha(page, X_F_DET_RIGHTS[1], y_f, _format_float_coma(consumo, 2), fontsize=FUENTE_NUMEROS)
+    _insertar_texto_derecha(page, X_F_DET_RIGHTS[2], y_f, _format_gs(costo_unit), fontsize=FUENTE_NUMEROS)
+    _insertar_texto_derecha(page, X_F_DET_RIGHTS[3], y_f, _format_gs(total_f), fontsize=FUENTE_NUMEROS)
 
 def _insertar_detalles_b_y_e(page, tabla_index, seed_int, partes, cantidad_excel):
     """Inserta los detalles de:
@@ -838,10 +850,10 @@ def _insertar_detalles_b_y_e(page, tabla_index, seed_int, partes, cantidad_excel
             costo = 1
 
         y_b = Y_B_DET_BASE[tabla_index]
-        _insertar_texto_derecha(page, X_B_DET_RIGHTS[0], y_b, str(qty), fontsize=8)
-        _insertar_texto_derecha(page, X_B_DET_RIGHTS[1], y_b, str(horas), fontsize=8)
-        _insertar_texto_derecha(page, X_B_DET_RIGHTS[2], y_b, _format_gs(costo), fontsize=8)
-        _insertar_texto_derecha(page, X_B_DET_RIGHTS[3], y_b, _format_gs(total_b), fontsize=8)
+        _insertar_texto_derecha(page, X_B_DET_RIGHTS[0], y_b, str(qty), fontsize=FUENTE_NUMEROS)
+        _insertar_texto_derecha(page, X_B_DET_RIGHTS[1], y_b, str(horas), fontsize=FUENTE_NUMEROS)
+        _insertar_texto_derecha(page, X_B_DET_RIGHTS[2], y_b, _format_gs(costo), fontsize=FUENTE_NUMEROS)
+        _insertar_texto_derecha(page, X_B_DET_RIGHTS[3], y_b, _format_gs(total_b), fontsize=FUENTE_NUMEROS)
 
     # -------------------------
     # E) Materiales (detalle)
@@ -853,9 +865,9 @@ def _insertar_detalles_b_y_e(page, tabla_index, seed_int, partes, cantidad_excel
             costo_unit = 1
 
         y_e = Y_E_DET_BASE[tabla_index]
-        _insertar_texto_derecha(page, X_E_DET_RIGHTS[0], y_e, str(consumo), fontsize=8)
-        _insertar_texto_derecha(page, X_E_DET_RIGHTS[1], y_e, _format_gs(costo_unit), fontsize=8)
-        _insertar_texto_derecha(page, X_E_DET_RIGHTS[2], y_e, _format_gs(total_e), fontsize=8)
+        _insertar_texto_derecha(page, X_E_DET_RIGHTS[0], y_e, str(consumo), fontsize=FUENTE_NUMEROS)
+        _insertar_texto_derecha(page, X_E_DET_RIGHTS[1], y_e, _format_gs(costo_unit), fontsize=FUENTE_NUMEROS)
+        _insertar_texto_derecha(page, X_E_DET_RIGHTS[2], y_e, _format_gs(total_e), fontsize=FUENTE_NUMEROS)
 
 def _calcular_resumen_desde_total(total_iva_incl):
     """
@@ -927,13 +939,13 @@ def _insertar_numero_resumen(page, tabla_index, fila_index, valor):
     y = Y_RESUMEN_BASE[tabla_index][fila_index]
 
     # Alineación a la derecha: calculamos ancho y ubicamos el inicio.
-    ancho = fitz.get_text_length(texto, fontname="helv", fontsize=8)
+    ancho = fitz.get_text_length(texto, fontname="helv", fontsize=FUENTE_NUMEROS)
     x = x_right - ancho
 
     page.insert_text(
         (x, y),
         texto,
-        fontsize=8,
+        fontsize=FUENTE_NUMEROS,
         fontname="helv",
         color=(0, 0, 0)
     )
@@ -954,13 +966,13 @@ def _insertar_numero_partes(page, tabla_index, fila_index, valor):
     x_right = X_PARTES_RIGHTS[fila_index]
     y = Y_PARTES_BASE[tabla_index][fila_index]
 
-    ancho = fitz.get_text_length(texto, fontname="helv", fontsize=8)
+    ancho = fitz.get_text_length(texto, fontname="helv", fontsize=FUENTE_NUMEROS)
     x = x_right - ancho
 
     page.insert_text(
         (x, y),
         texto,
-        fontsize=8,
+        fontsize=FUENTE_NUMEROS,
         fontname="helv",
         color=(0, 0, 0)
     )
@@ -978,13 +990,13 @@ def _insertar_numero_ab_totales(page, tabla_index, fila_index, valor):
     x_right = X_AB_TOTALES_RIGHTS[fila_index]
     y = Y_AB_TOTALES_BASE[tabla_index][fila_index]
 
-    ancho = fitz.get_text_length(texto, fontname="helv", fontsize=8)
+    ancho = fitz.get_text_length(texto, fontname="helv", fontsize=FUENTE_NUMEROS)
     x = x_right - ancho
 
     page.insert_text(
         (x, y),
         texto,
-        fontsize=8,
+        fontsize=FUENTE_NUMEROS,
         fontname="helv",
         color=(0, 0, 0)
     )
@@ -1027,6 +1039,7 @@ def generar_pdf(filas, fecha, titulo_llamado="", texto_lote="", logo_path=None):
             numero_item = fila.get("item", "")
             unidad_medida = fila.get("unidad_medida", "")
             presentacion = fila.get("presentacion", "")
+            atributos = fila.get("atributos", "")
         else:
             # fallback por si llega algo inesperado
             texto = str(fila)
@@ -1054,7 +1067,7 @@ def generar_pdf(filas, fecha, titulo_llamado="", texto_lote="", logo_path=None):
         page.insert_text(
             (X_FECHA, y + AJUSTE_BASELINE),
             fecha,
-            fontsize=8,
+            fontsize=FUENTE_NUMEROS,
             fontname="helv",
             color=(0, 0, 0)
         )
@@ -1071,7 +1084,7 @@ def generar_pdf(filas, fecha, titulo_llamado="", texto_lote="", logo_path=None):
         page.insert_text(
             (X_ITEM, y + AJUSTE_BASELINE),
             item_txt,
-            fontsize=8,
+            fontsize=FUENTE_NUMEROS,
             fontname="helv",
             color=(0, 0, 0)
         )
@@ -1176,11 +1189,16 @@ def generar_pdf(filas, fecha, titulo_llamado="", texto_lote="", logo_path=None):
                 max_lineas=2
             )
 
-        # Derecha: Unidad de medida + Presentación (por ítem)
-        texto_info = (
-            f"Unidad de medida: {str(unidad_medida).strip()}\n"
-            f"Presentación: {str(presentacion).strip()}"
-        )
+        # Derecha: Unidad de medida + Presentación (por ítem) / Atributos (si existe)
+        atributos_txt = str(atributos).strip() if atributos is not None else ""
+        if atributos_txt:
+            # Si el Excel trae columna "Atributos"/"Atributo", imprimimos SOLO ese contenido.
+            texto_info = atributos_txt
+        else:
+            texto_info = (
+                f"Unidad de medida: {str(unidad_medida).strip()}\n"
+                f"Presentación: {str(presentacion).strip()}"
+            )
 
         rect_info = fitz.Rect(
             X_UNI_PRES,

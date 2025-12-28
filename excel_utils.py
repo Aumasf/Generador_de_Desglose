@@ -140,6 +140,7 @@ def leer_items_y_descripciones_excel(ruta_excel):
     filas: lista de dicts con:
         - item
         - descripcion
+        - atributos (si existe la columna "Atributos"/"Atributo")
         - unidad_medida
         - presentacion
         - cantidad
@@ -160,6 +161,7 @@ def leer_items_y_descripciones_excel(ruta_excel):
     col_item = None
     col_unidad = None
     col_presentacion = None
+    col_atributos = None
     col_cantidad = None
     col_precio_unit = None
     col_precio_total = None
@@ -180,22 +182,32 @@ def leer_items_y_descripciones_excel(ruta_excel):
                 break
 
         if fila_encabezados:
-            # localizar Unidad de Medida / Presentación / Cantidad / Precios
+            # localizar Atributos (si existe) / Cantidad / Precios
             for nombre, col in posibles.items():
-                if col_unidad is None and "unidad" in nombre and "medida" in nombre:
-                    col_unidad = col
-                if col_presentacion is None and "presentacion" in nombre:
-                    col_presentacion = col
+                if col_atributos is None and "atributo" in nombre:
+                    col_atributos = col
+
+            # Si existe 'Atributos', NO buscamos Unidad de Medida ni Presentación.
+            if col_atributos is None:
+                for nombre, col in posibles.items():
+                    if col_unidad is None and "unidad" in nombre and "medida" in nombre:
+                        col_unidad = col
+                    if col_presentacion is None and "presentacion" in nombre:
+                        col_presentacion = col
+
+            # Cantidad / Precios (siempre)
+            for nombre, col in posibles.items():
                 if col_cantidad is None and nombre == "cantidad":
                     col_cantidad = col
                 if col_precio_unit is None and "precio" in nombre and "unit" in nombre:
                     col_precio_unit = col
                 if col_precio_total is None and "precio" in nombre and "total" in nombre:
                     col_precio_total = col
+
             break
 
     if not fila_encabezados:
-        raise ValueError("No se encontró una fila de encabezados con 'Descripción del Bien'")
+        raise ValueError("No se encontró una fila de encabezados con una columna 'Descripción'")
 
     # localizar columna de item
     for col in range(1, ws.max_column + 1):
@@ -222,6 +234,7 @@ def leer_items_y_descripciones_excel(ruta_excel):
         if desc is None or str(desc).strip() == "":
             continue
 
+        atributos = ws.cell(row=fila, column=col_atributos).value if col_atributos else None
         unidad = ws.cell(row=fila, column=col_unidad).value if col_unidad else None
         presentacion = ws.cell(row=fila, column=col_presentacion).value if col_presentacion else None
         cantidad = ws.cell(row=fila, column=col_cantidad).value if col_cantidad else None
@@ -231,8 +244,11 @@ def leer_items_y_descripciones_excel(ruta_excel):
         filas.append({
             "item": item,
             "descripcion": str(desc).strip(),
-            "unidad_medida": str(unidad).strip() if unidad is not None else "",
-            "presentacion": str(presentacion).strip() if presentacion is not None else "",
+            # Si existe la columna 'Atributos' (o 'Atributo'), usamos ese texto y
+            # dejamos vacíos Unidad/Presentación para evitar inconsistencias.
+            "atributos": str(atributos).strip() if atributos is not None else "",
+            "unidad_medida": "" if col_atributos else (str(unidad).strip() if unidad is not None else ""),
+            "presentacion": "" if col_atributos else (str(presentacion).strip() if presentacion is not None else ""),
             "cantidad": _to_number(cantidad),
             "precio_unitario_iva_incl": _to_number(precio_unit),
             "precio_total_iva_incl": _to_number(precio_total),
