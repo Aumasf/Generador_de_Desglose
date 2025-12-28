@@ -94,7 +94,7 @@ def _buscar_titulo_llamado(ws, filas_busqueda=5):
                 continue
 
             norm = normalizar(valor)
-            if "items del llamado" in norm or "item del llamado" in norm:
+            if "items del llamado" in norm or "item del llamado" in norm or "licitacion" in norm:
                 return str(valor).strip()
 
     v = ws.cell(row=1, column=1).value
