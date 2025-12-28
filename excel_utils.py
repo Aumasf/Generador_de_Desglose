@@ -119,13 +119,14 @@ def _buscar_texto_lote(ws, filas_busqueda=15):
 
             norm = normalizar(valor)
 
-            # match fuerte: empieza con "lote"
-            if norm.startswith("lote"):
+            # match fuerte: empieza con "lote" o "grupo"
+            if norm.startswith("lote") or norm.startswith("grupo"):
                 return str(valor).strip()
 
-            # match flexible: contiene " lote " o "lote"
-            if "lote" in norm:
+            # match flexible: contiene "lote" o "grupo"
+            if "lote" in norm or "grupo" in norm:
                 return str(valor).strip()
+
 
     return ""
 
@@ -173,7 +174,7 @@ def leer_items_y_descripciones_excel(ruta_excel):
 
         # localizar descripción
         for nombre, col in posibles.items():
-            if "descripcion" in nombre and "bien" in nombre:
+            if "descripcion" in nombre:
                 fila_encabezados = fila
                 col_desc = col
                 break
