@@ -1,0 +1,22 @@
+# Entornos virtuales
+venv/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Archivos temporales / outputs
+output*.pdf
+*.log
+
+# Uploads temporales (si tu app guarda archivos)
+uploads/
+tmp/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
