@@ -27,6 +27,19 @@ def index():
         fecha = request.form.get("fecha", "").strip()
 
         # =============================
+        # TEMPLATE (selector)
+        # =============================
+        template_id = (request.form.get("template", "1") or "1").strip()
+        if template_id not in ("1", "2"):
+            template_id = "1"
+
+        # Validación: si se elige Template 2, debe existir el PDF en el proyecto
+        if template_id == "2":
+            t2 = Path(__file__).resolve().parent / "template_desglose2.pdf"
+            if not t2.exists():
+                return "No se encontró template_desglose2.pdf en el servidor. Agregalo en la carpeta pdf_generator/ o elige Template 1.", 400
+
+        # =============================
         # EXCEL SUBIDO
         # =============================
         archivo = request.files.get("excel")
@@ -57,6 +70,37 @@ def index():
                 logo_file.save(ruta_logo)
             else:
                 return "El logo debe ser una imagen (png/jpg/jpeg/webp/bmp/tif/tiff)", 400
+        # =============================
+        # FIRMA (OPCIONAL)
+        # =============================
+        firma_file = request.files.get("firma")
+        ruta_firma = None
+        if firma_file and getattr(firma_file, "filename", ""):
+            nombre = (firma_file.filename or "").lower()
+            if nombre.endswith((".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff", ".gif")):
+                ts = int(time.time())
+                ext = Path(nombre).suffix
+                ruta_firma = UPLOADS / f"firma_{ts}{ext}"
+                firma_file.save(ruta_firma)
+            else:
+                return "La firma debe ser una imagen (png/jpg/jpeg/webp/bmp/tif/tiff)", 400
+
+        # =============================
+        # SELLO (OPCIONAL)
+        # =============================
+        sello_file = request.files.get("sello")
+        ruta_sello = None
+        if sello_file and getattr(sello_file, "filename", ""):
+            nombre = (sello_file.filename or "").lower()
+            if nombre.endswith((".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff", ".gif")):
+                ts = int(time.time())
+                ext = Path(nombre).suffix
+                ruta_sello = UPLOADS / f"sello_{ts}{ext}"
+                sello_file.save(ruta_sello)
+            else:
+                return "El sello debe ser una imagen (png/jpg/jpeg/webp/bmp/tif/tiff)", 400
+
+
 
         # =============================
         # LEER EXCEL (título + filas)
@@ -84,6 +128,9 @@ def index():
             titulo_llamado=titulo_llamado,
             texto_lote=texto_lote,
             logo_path=(ruta_logo if ruta_logo else DEFAULT_LOGO),
+            template_id=template_id,
+            firma_path=ruta_firma,
+            sello_path=ruta_sello,
         )
 
         return send_file(pdf, as_attachment=True)

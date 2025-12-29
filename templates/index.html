@@ -28,6 +28,16 @@
     <br><br>
 
     <!-- ============================= -->
+    <!-- TEMPLATE (selector) -->
+    <!-- ============================= -->
+    <label>Template:</label><br>
+    <select name="template">
+        <option value="1" selected>Template 1</option>
+        <option value="2">Template 2</option>
+    </select>
+    <br><br>
+
+    <!-- ============================= -->
     <!-- ARCHIVO EXCEL -->
     <!-- ============================= -->
     <label>Archivo Excel:</label><br>
@@ -39,7 +49,19 @@
     <!-- Si no se sube, se usa logo_default.png -->
     <!-- ============================= -->
     <label>Logo (opcional):</label><br>
-    <input type="file" name="logo" accept="image/png,image/jpeg,image/webp,image/bmp,image/tiff">
+    <input type="file" name="logo" accept="image/png,image/jpeg,image/webp,image/bmp,image/tiff,image/gif">
+    <br><br>
+
+    <!-- ============================= -->
+    <!-- FIRMA y SELLO (OPCIONALES) -->
+    <!-- Se colocan al pie, debajo de la 2da tabla, en cada hoja -->
+    <!-- ============================= -->
+    <label>Firma (opcional):</label><br>
+    <input type="file" name="firma" accept="image/png,image/jpeg,image/webp,image/bmp,image/tiff,image/gif">
+    <br><br>
+
+    <label>Sello (opcional):</label><br>
+    <input type="file" name="sello" accept="image/png,image/jpeg,image/webp,image/bmp,image/tiff,image/gif">
     <br><br>
 
     <button type="submit">Generar PDF</button>

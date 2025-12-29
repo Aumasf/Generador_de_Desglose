@@ -2,7 +2,10 @@ import fitz  # PyMuPDF
 from pathlib import Path
 from costos_partes import calcular_partes_desde_cdt  # NUEVO: cálculo D/E/F/A+B desde CDT
 
-TEMPLATE = Path("template_desglose.pdf")
+TEMPLATE_1 = Path(__file__).resolve().parent / "template_desglose.pdf"
+TEMPLATE_2 = Path(__file__).resolve().parent / "template_desglose2.pdf"
+TEMPLATE_MAP = {"1": TEMPLATE_1, "2": TEMPLATE_2}
+TEMPLATE = TEMPLATE_1
 OUTPUT = Path("output.pdf")
 
 # ===============================
@@ -390,6 +393,20 @@ LOGO_SCALE = 1.10          # agrandar logo 10% (mantiene esquina superior derech
 LOGO_MARGIN_RIGHT = 18      # margen derecho (ajustable)
 LOGO_MARGIN_TOP = 14        # margen superior (ajustable)
 
+# ==========================================
+# NUEVO: FIRMA y SELLO (opcionales)
+# ==========================================
+# Se insertan 1 vez por página, al pie, debajo de la 2da tabla.
+# (Aún si se tapa la 2da tabla en la última hoja por ser impar.)
+FIRMA_MAX_W = 160              # ancho máximo (bounding box) de la firma
+FIRMA_MAX_H = 45               # alto máximo (bounding box) de la firma
+SELLO_MAX_W = 140              # ancho máximo (bounding box) del sello
+SELLO_MAX_H = 45               # alto máximo (bounding box) del sello
+FIRMA_MARGIN_LEFT = 65         # no pegado a la esquina
+SELLO_MARGIN_RIGHT = 65        # no pegado a la esquina
+FIRMA_SELLO_MARGIN_BOTTOM = 18 # separación del borde inferior
+
+
 
 def insertar_texto_autoajustado(page, rect, texto):
     """
@@ -674,6 +691,86 @@ def _round_half_up(x):
     from decimal import Decimal, ROUND_HALF_UP
     return int(Decimal(str(x)).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
 
+
+
+_IMAGE_SIZE_CACHE = {}
+
+def _get_image_size(img_path):
+    """Devuelve (w, h) de una imagen usando PyMuPDF (cacheado)."""
+    if not img_path:
+        return None
+    try:
+        p = str(img_path)
+    except Exception:
+        p = None
+    if not p:
+        return None
+    if p in _IMAGE_SIZE_CACHE:
+        return _IMAGE_SIZE_CACHE[p]
+    try:
+        pix = fitz.Pixmap(p)
+        w, h = float(pix.width), float(pix.height)
+        pix = None
+        if w > 0 and h > 0:
+            _IMAGE_SIZE_CACHE[p] = (w, h)
+            return (w, h)
+    except Exception:
+        pass
+    return None
+
+def insertar_imagen_fit_en_box(page, img_path, box_rect):
+    """Inserta una imagen ajustada (sin deformar) dentro de un bounding box."""
+    if not img_path:
+        return
+    try:
+        p = Path(img_path)
+        if not p.exists():
+            return
+        size = _get_image_size(p)
+        if not size:
+            return
+        img_w, img_h = size
+        ratio = img_w / img_h
+        max_w, max_h = float(box_rect.width), float(box_rect.height)
+        if max_w <= 0 or max_h <= 0:
+            return
+        # Fit manteniendo aspecto
+        if (max_w / max_h) >= ratio:
+            h = max_h
+            w = h * ratio
+        else:
+            w = max_w
+            h = w / ratio
+        # Centrar dentro del box
+        x0 = float(box_rect.x0) + (max_w - w) / 2.0
+        y0 = float(box_rect.y0) + (max_h - h) / 2.0
+        page.insert_image(fitz.Rect(x0, y0, x0 + w, y0 + h), filename=str(p))
+    except Exception:
+        # No romper generación por una imagen inválida
+        return
+
+def insertar_firma_y_sello(page, firma_path=None, sello_path=None):
+    """Inserta firma (abajo-izq) y sello (abajo-der) en cada página (opcionales)."""
+    try:
+        y1 = page.rect.height - FIRMA_SELLO_MARGIN_BOTTOM
+        # Firma (no pegada a la esquina)
+        firma_box = fitz.Rect(
+            FIRMA_MARGIN_LEFT,
+            y1 - FIRMA_MAX_H,
+            FIRMA_MARGIN_LEFT + FIRMA_MAX_W,
+            y1,
+        )
+        # Sello (no pegado a la esquina)
+        sello_box = fitz.Rect(
+            page.rect.width - SELLO_MARGIN_RIGHT - SELLO_MAX_W,
+            y1 - SELLO_MAX_H,
+            page.rect.width - SELLO_MARGIN_RIGHT,
+            y1,
+        )
+        insertar_imagen_fit_en_box(page, firma_path, firma_box)
+        insertar_imagen_fit_en_box(page, sello_path, sello_box)
+    except Exception:
+        return
 
 def _clamp_nonneg_int(x):
     """
@@ -1001,7 +1098,7 @@ def _insertar_numero_ab_totales(page, tabla_index, fila_index, valor):
         color=(0, 0, 0)
     )
 
-def generar_pdf(filas, fecha, titulo_llamado="", texto_lote="", logo_path=None):
+def generar_pdf(filas, fecha, titulo_llamado="", texto_lote="", logo_path=None, template_id="1", firma_path=None, sello_path=None):
     """
     Genera un PDF usando el template existente.
     Coloca 2 ítems por hoja.
@@ -1024,7 +1121,11 @@ def generar_pdf(filas, fecha, titulo_llamado="", texto_lote="", logo_path=None):
     - Texto de "Lote" (una sola línea) en la 2da fila de cada tabla.
     - Logo en esquina superior derecha de cada página (default o subido por usuario).
     """
-    template_doc = fitz.open(TEMPLATE)
+    template_id = str(template_id or "1").strip()
+    template_path = TEMPLATE_MAP.get(template_id, TEMPLATE_1)
+    if not template_path.exists():
+        template_path = TEMPLATE_1
+    template_doc = fitz.open(str(template_path))
     doc = fitz.open()
 
     total = len(filas)
@@ -1273,6 +1374,9 @@ def generar_pdf(filas, fecha, titulo_llamado="", texto_lote="", logo_path=None):
                 color=(1, 1, 1),
                 fill=(1, 1, 1)
             )
+
+        if (posicion_en_hoja == 1) or (i == total - 1):
+            insertar_firma_y_sello(page, firma_path=firma_path, sello_path=sello_path)
 
     doc.save(OUTPUT)
     doc.close()
