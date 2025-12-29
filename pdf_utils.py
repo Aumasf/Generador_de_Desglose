@@ -73,8 +73,8 @@ FUENTE_INFO_MIN = 5.0
 # ajustarlas fácil sin tocar el resto del código.
 
 X_LOTE = 62                 # X inicio del texto
-Y_LOTE_OFFSET = -1.5          # baseline relativo a 'y'
-ANCHO_LOTE = 490            # ancho disponible (ajustable)
+Y_LOTE_OFFSET = -2          # baseline relativo a 'y'
+ANCHO_LOTE = 440            # ancho disponible (ajustable)
 
 # IMPORTANTE:
 # El texto de Lote debe quedar CENTRADO respecto a la TABLA (no a la hoja).
@@ -84,8 +84,8 @@ ANCHO_LOTE = 490            # ancho disponible (ajustable)
 X_LOTE_TABLA = 59.83      # borde izquierdo real de la tabla (ajustable)
 ANCHO_LOTE_TABLA = 450.79  # ancho real de la tabla (ajustable)
 
-FUENTE_LOTE_MAX = 7
-FUENTE_LOTE_MIN = 5.0
+FUENTE_LOTE_MAX = 6.5
+FUENTE_LOTE_MIN = 4.0
 
 
 # ==========================================
@@ -150,7 +150,7 @@ RESUMEN_FILAS = ["CDT", "GG", "BEL", "CU", "IVA", "CU_IVA"]
 
 # Columna donde se imprimen los valores (x0, x1). Si querés mover la columna completa,
 # ajustá SOLO estos dos números.
-X_RESUMEN_RIGHT = 508.00  # Ajustable: borde derecho (dentro de la celda) para alinear a la derecha
+X_RESUMEN_RIGHT = 521.00  # Ajustable: borde derecho (dentro de la celda) para alinear a la derecha
 
 # Si querés mover SOLO alguna fila, podés cambiar el valor por fila (vector).
 X_RESUMEN_RIGHTS = [X_RESUMEN_RIGHT] * len(RESUMEN_FILAS)
@@ -206,14 +206,14 @@ PARTES_NUM_KEYS = ["AB", "D", "E", "F"]
 AB_TOTALES_KEYS = ["A", "B"]
 
 # Misma columna derecha que el resto de totales (ajustable si hace falta).
-X_AB_TOTALES_RIGHT = 508.00
+X_AB_TOTALES_RIGHT = X_RESUMEN_RIGHT
 X_AB_TOTALES_RIGHTS = [X_AB_TOTALES_RIGHT] * len(AB_TOTALES_KEYS)
 
 # Baselines (tabla de ARRIBA) para:
 #   0: A) TOTAL Gs.
 #   1: B) TOTAL Gs.
 # Estos valores están alineados al template (y1 de las etiquetas).
-Y_AB_TOTALES_BASE_TOP = [195.16, 236.32]
+Y_AB_TOTALES_BASE_TOP = [194.5, 235.5]
 
 # Y por tabla (arriba / abajo)
 Y_AB_TOTALES_BASE = [
@@ -222,7 +222,7 @@ Y_AB_TOTALES_BASE = [
 ]
 
 # Columna derecha donde se alinean los números (mismo criterio que el resumen).
-X_PARTES_RIGHT = 508.00
+X_PARTES_RIGHT = X_AB_TOTALES_RIGHT
 X_PARTES_RIGHTS = [X_PARTES_RIGHT] * len(PARTES_NUM_KEYS)
 
 # Y base (baseline) para la tabla de ARRIBA.
@@ -247,7 +247,7 @@ Y_PARTES_BASE = [
 X_Col1=266
 X_Col2=309
 X_Col3=382
-X_Col4=508
+X_Col4=X_RESUMEN_RIGHT #definido en fila 153
 
 
 # ===============================
@@ -398,10 +398,10 @@ LOGO_MARGIN_TOP = 14        # margen superior (ajustable)
 # ==========================================
 # Se insertan 1 vez por página, al pie, debajo de la 2da tabla.
 # (Aún si se tapa la 2da tabla en la última hoja por ser impar.)
-FIRMA_MAX_W = 160              # ancho máximo (bounding box) de la firma
-FIRMA_MAX_H = 45               # alto máximo (bounding box) de la firma
-SELLO_MAX_W = 140              # ancho máximo (bounding box) del sello
-SELLO_MAX_H = 45               # alto máximo (bounding box) del sello
+FIRMA_MAX_W = 320              # ancho máximo (bounding box) de la firma
+FIRMA_MAX_H = 100               # alto máximo (bounding box) de la firma
+SELLO_MAX_W = 320              # ancho máximo (bounding box) del sello
+SELLO_MAX_H = 100              # alto máximo (bounding box) del sello
 FIRMA_MARGIN_LEFT = 65         # no pegado a la esquina
 SELLO_MARGIN_RIGHT = 65        # no pegado a la esquina
 FIRMA_SELLO_MARGIN_BOTTOM = 18 # separación del borde inferior
