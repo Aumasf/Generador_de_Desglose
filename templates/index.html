@@ -7,7 +7,15 @@
 </head>
 <body>
 
-<h3>Generador de Desglose desde Planilla de Oferta</h3>
+<div class="container">
+  <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+    <h3 style="margin:0;">Generador de Desglose desde Planilla de Oferta</h3>
+    <a href="{{ url_for('home') }}" style="font-size:13px; color:#2980b9; text-decoration:none;">← Volver</a>
+  </div>
+  <div style="height:10px;"></div>
+
+
+
 
 
 
@@ -45,6 +53,57 @@
     <br><br>
 
     <!-- ============================= -->
+    <!-- ÍTEMS A IMPRIMIR (selector) -->
+    <!-- ============================= -->
+    <label>Ítems a imprimir:</label><br>
+    <select name="items_mode" id="items_mode">
+        <option value="all" selected>1) Todos</option>
+        <option value="reporte">2) Selección por documento reporte</option>
+        <option value="manual">3) Selección manual</option>
+    </select>
+    <div style="margin-top:6px; font-size:12px; color:#667;">
+        En modo "reporte": se desglosan ítems con % &lt; -25 o % &gt; 15, donde % = (oferta - referencial) / referencial * 100.
+    </div>
+    <br>
+
+    <div id="reporte_box" style="display:none; padding:10px; border:1px solid #cfd6de; border-radius:8px; background:#f8fafc;">
+        <label>Documento reporte (CSV o Excel):</label><br>
+        <input type="file" name="reporte" accept=".csv,.xlsx,.xlsm,.xls">
+        <div style="margin-top:6px; font-size:12px; color:#667;">
+            Debe contener el número de ítem y el precio unitario referencial (por ejemplo: columna "numero" y "precio_unitario_estimado").
+        </div>
+    </div>
+
+    <div id="manual_box" style="display:none; padding:10px; border:1px solid #cfd6de; border-radius:8px; background:#f8fafc;">
+        <label>Selección manual (ej: 3,11-15,18):</label><br>
+        <input type="text" name="items_manual" placeholder="Ej: 3,11-15,18">
+        <div style="margin-top:6px; font-size:12px; color:#667;">
+            Acepta rangos con guion y listas separadas por coma.
+        </div>
+    </div>
+
+    <script>
+      function toggleItemsMode() {
+        var mode = document.getElementById("items_mode").value;
+        var rep = document.getElementById("reporte_box");
+        var man = document.getElementById("manual_box");
+        if (!rep || !man) return;
+
+        rep.style.display = (mode === "reporte") ? "block" : "none";
+        man.style.display = (mode === "manual") ? "block" : "none";
+      }
+      document.addEventListener("DOMContentLoaded", function() {
+        var sel = document.getElementById("items_mode");
+        if (sel) {
+          sel.addEventListener("change", toggleItemsMode);
+          toggleItemsMode();
+        }
+      });
+    </script>
+
+    <br><br>
+
+    <!-- ============================= -->
     <!-- LOGO (OPCIONAL) -->
     <!-- Si no se sube, se usa logo_default.png -->
     <!-- ============================= -->
@@ -67,6 +126,9 @@
     <button type="submit">Generar PDF</button>
 </form>
 
+
+
+</div>
 
 </body>
 </html>

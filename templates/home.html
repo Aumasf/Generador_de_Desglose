@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <title>Automatizador de tareas</title>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Automatizador de tareas</h2>
+    <p style="margin-top:-6px; color:#556; line-height:1.4;">
+      Bienvenido. Elegí una herramienta para comenzar.
+      <br>
+      (Luego iremos agregando más subprogramas en esta pantalla.)
+    </p>
+
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:12px; margin-top:18px;">
+      <a href="{{ url_for('desglose') }}" style="text-decoration:none;">
+        <div style="border:1px solid #cfd6de; border-radius:8px; padding:14px; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+          <div style="font-weight:700; color:#2c3e50; margin-bottom:6px;">Generador de desglose</div>
+          <div style="color:#566; font-size:13px; line-height:1.35;">
+            Cargá el Excel y generá el PDF de desglose usando el template seleccionado.
+          </div>
+          <div style="margin-top:12px;">
+            <button type="button">Abrir</button>
+          </div>
+        </div>
+      </a>
+
+      <!--
+      Próximos subprogramas (ejemplos):
+      - Automatizador de notas
+      - Generador de cartas
+      - Conversor de planillas
+      -->
+    </div>
+
+    <div class="footer">
+      IBL Ingeniería SRL · Automatizador de tareas
+    </div>
+  </div>
+
+</body>
+</html>

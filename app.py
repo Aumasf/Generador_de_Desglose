@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, send_file
 from excel_utils import leer_items_y_descripciones_excel
 from pdf_utils import generar_pdf
 from match_utils import aplicar_match_a_filas
+from report_utils import leer_reporte, parse_items_manual
 from pathlib import Path
 import time
 
@@ -17,8 +18,13 @@ MATCH_XLSX = Path(__file__).resolve().parent / "match.xlsx"
 # Logo por defecto (se usa si el usuario no sube uno)
 DEFAULT_LOGO = Path(__file__).resolve().parent / "logo_default.png"
 
-@app.route("/", methods=["GET", "POST"])
-def index():
+@app.route("/", methods=["GET"])
+def home():
+    return render_template("home.html")
+
+
+@app.route("/desglose", methods=["GET", "POST"])
+def desglose():
     if request.method == "POST":
 
         # =============================
@@ -39,7 +45,39 @@ def index():
             if not t2.exists():
                 return "No se encontró template_desglose2.pdf en el servidor. Agregalo en la carpeta pdf_generator/ o elige Template 1.", 400
 
+        
         # =============================
+        # ÍTEMS A IMPRIMIR (selector)
+        # =============================
+        items_mode = (request.form.get("items_mode", "all") or "all").strip().lower()
+        if items_mode not in ("all", "reporte", "manual"):
+            items_mode = "all"
+
+        # Si es reporte, guardamos el archivo ahora (CSV o Excel)
+        ruta_reporte = None
+        if items_mode == "reporte":
+            rep_file = request.files.get("reporte")
+            if not rep_file or not getattr(rep_file, "filename", ""):
+                return "En modo 'reporte' debes subir el archivo de reporte (.csv o .xlsx).", 400
+
+            nombre_rep = (rep_file.filename or "").lower()
+            if not nombre_rep.endswith((".csv", ".xlsx", ".xlsm", ".xls")):
+                return "El reporte debe ser .csv o Excel (.xlsx/.xlsm/.xls).", 400
+
+            ts = int(time.time())
+            ext = Path(nombre_rep).suffix
+            ruta_reporte = UPLOADS / f"reporte_{ts}{ext}"
+            rep_file.save(ruta_reporte)
+
+        # Si es manual, parseamos el texto
+        items_manual = []
+        if items_mode == "manual":
+            texto_sel = request.form.get("items_manual", "")
+            items_manual = parse_items_manual(texto_sel)
+            if not items_manual:
+                return "En modo 'selección manual' debes indicar ítems (ej: 3,11-15,18).", 400
+
+# =============================
         # EXCEL SUBIDO
         # =============================
         archivo = request.files.get("excel")
@@ -106,6 +144,48 @@ def index():
         # LEER EXCEL (título + filas)
         # =============================
         titulo_llamado, texto_lote, filas = leer_items_y_descripciones_excel(ruta_excel)
+
+        
+        # =============================
+        # FILTRO DE ÍTEMS SEGÚN MODO
+        # =============================
+        if items_mode == "manual":
+            # items_manual ya viene parseado
+            set_manual = set(items_manual)
+            filas = [f for f in filas if int(f.get("item")) in set_manual]
+
+        elif items_mode == "reporte":
+            # Leemos el reporte y comparamos precios unitarios
+            try:
+                mapa_ref = leer_reporte(ruta_reporte)
+            except Exception as e:
+                return f"Error leyendo reporte: {e}", 400
+
+            filas_filtradas = []
+            for f in filas:
+                try:
+                    it = int(f.get("item"))
+                except Exception:
+                    continue
+
+                oferta = f.get("precio_unitario_iva_incl")
+                ref = mapa_ref.get(it)
+
+                # Si no existe ref o ref es 0, no se puede calcular => NO se incluye (filtro estricto)
+                if oferta is None or ref is None or ref == 0:
+                    continue
+
+                porcentaje = (oferta - ref) / ref * 100.0
+
+                if porcentaje < -25.0 or porcentaje > 15.0:
+                    filas_filtradas.append(f)
+
+            filas = filas_filtradas
+
+
+        # Si el filtro dejó 0 ítems, no generamos un PDF vacío
+        if not filas:
+            return "No hay ítems para imprimir con el criterio seleccionado.", 400
 
         # =============================
         # MATCH (Herramientas/Materiales) - SOLO textos

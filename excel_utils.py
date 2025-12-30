@@ -148,17 +148,14 @@ def leer_items_y_descripciones_excel(ruta_excel):
         - precio_total_iva_incl   (IMPORTANTE: es el TOTAL, no el unitario)
     """
     wb = load_workbook(ruta_excel, data_only=True)
-    ws = wb.active
 
-    # -------------------------------
-    # Encabezados generales (parte superior del Excel)
-    # -------------------------------
-    titulo_llamado = _buscar_titulo_llamado(ws)
-    texto_lote = _buscar_texto_lote(ws)
-
+    # Elegir la hoja correcta: buscamos una tabla que tenga encabezados con 'Item' y 'Descripcion'
+    ws = None
     fila_encabezados = None
     col_desc = None
     col_item = None
+
+    # columnas opcionales (se completan luego con la hoja seleccionada)
     col_unidad = None
     col_presentacion = None
     col_atributos = None
@@ -166,22 +163,42 @@ def leer_items_y_descripciones_excel(ruta_excel):
     col_precio_unit = None
     col_precio_total = None
 
-    # Buscar encabezados en las primeras 10 filas
-    for fila in range(1, 11):
-        posibles = {}
-        for col in range(1, ws.max_column + 1):
-            valor = ws.cell(row=fila, column=col).value
-            if valor:
-                posibles[normalizar(valor)] = col
+    HEADER_SCAN_MAX = 80
 
-        # localizar descripción
-        for nombre, col in posibles.items():
-            if "descripcion" in nombre:
-                fila_encabezados = fila
-                col_desc = col
-                break
+    for ws_try in wb.worksheets:
+        for fila in range(1, min(HEADER_SCAN_MAX, ws_try.max_row) + 1):
+            posibles = {}
+            for col in range(1, ws_try.max_column + 1):
+                valor = ws_try.cell(row=fila, column=col).value
+                if valor:
+                    posibles[normalizar(valor)] = col
 
-        if fila_encabezados:
+            # detectar descripcion
+            col_desc_tmp = None
+            for nombre, col in posibles.items():
+                if "descripcion" in nombre:
+                    col_desc_tmp = col
+                    break
+
+            if not col_desc_tmp:
+                continue
+
+            # detectar item en la MISMA fila
+            col_item_tmp = None
+            for nombre, col in posibles.items():
+                if nombre == "item" or nombre.startswith("item"):
+                    col_item_tmp = col
+                    break
+
+            if not col_item_tmp:
+                continue
+
+            # OK: esta hoja tiene la tabla
+            ws = ws_try
+            fila_encabezados = fila
+            col_desc = col_desc_tmp
+            col_item = col_item_tmp
+
             # localizar Atributos (si existe) / Cantidad / Precios
             for nombre, col in posibles.items():
                 if col_atributos is None and "atributo" in nombre:
@@ -195,7 +212,6 @@ def leer_items_y_descripciones_excel(ruta_excel):
                     if col_presentacion is None and "presentacion" in nombre:
                         col_presentacion = col
 
-            # Cantidad / Precios (siempre)
             for nombre, col in posibles.items():
                 if col_cantidad is None and nombre == "cantidad":
                     col_cantidad = col
@@ -204,25 +220,21 @@ def leer_items_y_descripciones_excel(ruta_excel):
                 if col_precio_total is None and "precio" in nombre and "total" in nombre:
                     col_precio_total = col
 
-            break
+            break  # salir del loop de filas
+        if ws is not None:
+            break  # salir del loop de hojas
 
-    if not fila_encabezados:
-        raise ValueError("No se encontró una fila de encabezados con una columna 'Descripción'")
+    if ws is None or fila_encabezados is None or col_desc is None or col_item is None:
+        raise ValueError("No se encontró una fila de encabezados con columnas de 'Item' y 'Descripcion'")
 
-    # localizar columna de item
-    for col in range(1, ws.max_column + 1):
-        valor = ws.cell(row=fila_encabezados, column=col).value
-        if not valor:
-            continue
 
-        nombre = normalizar(valor)
-        if nombre == "item" or nombre == "ítem" or nombre.startswith("item"):
-            col_item = col
-            break
 
-    if not col_item:
-        raise ValueError("No se encontró la columna 'Ítem' en el encabezado")
-
+    # -------------------------------
+    # Encabezados generales (parte superior del Excel)
+    # -------------------------------
+    titulo_llamado = _buscar_titulo_llamado(ws)
+    texto_lote = _buscar_texto_lote(ws)
+    # Encabezados detectados automáticamente (fila_encabezados/col_desc/col_item/etc.)
     filas = []
     for fila in range(fila_encabezados + 1, ws.max_row + 1):
         item = ws.cell(row=fila, column=col_item).value
